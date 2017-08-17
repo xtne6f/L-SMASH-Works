@@ -116,12 +116,29 @@ void au_message_box_desktop
     MessageBox( HWND_DESKTOP, message, "lwinput", uType );
 }
 
+static void get_module_directory_or_empty( char *buf, DWORD buf_size )
+{
+    DWORD n = GetModuleFileName( NULL, buf, buf_size );
+    if( n != 0 && n < buf_size )
+    {
+        /* Assuming the module-name (e.g."aviutl.exe") has no 0x5c. */
+        while( n != 0 && buf[n - 1] != '/' && buf[n - 1] != '\\' )
+            buf[--n] = '\0';
+        return;
+    }
+    *buf = '\0';
+}
+
 static FILE *open_settings( void )
 {
     FILE *ini = NULL;
     for( int i = 0; i < 2; i++ )
     {
-        ini = fopen( settings_path_list[i], "rb" );
+        char path[512];
+        get_module_directory_or_empty( path, sizeof(path) );
+        if( *path && strlen( path ) + strlen( settings_path_list[i] ) < sizeof(path) )
+            strcat( path, settings_path_list[i] );
+        ini = *path ? fopen( path, "rb" ) : NULL;
         if( ini )
         {
             settings_path = (char *)settings_path_list[i];
@@ -837,7 +854,11 @@ static BOOL CALLBACK dialog_proc
                     /* Open */
                     if( !settings_path )
                         settings_path = (char *)settings_path_list[0];
-                    FILE *ini = fopen( settings_path, "w" );
+                    char path[512];
+                    get_module_directory_or_empty( path, sizeof(path) );
+                    if( *path && strlen( path ) + strlen( settings_path ) < sizeof(path) )
+                        strcat( path, settings_path );
+                    FILE *ini = *path ? fopen( path, "w" ) : NULL;
                     if( !ini )
                     {
                         MESSAGE_BOX_DESKTOP( MB_ICONERROR | MB_OK, "Failed to update configuration file" );

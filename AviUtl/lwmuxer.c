@@ -237,13 +237,30 @@ typedef struct
     FILE             *log_file;
 } lsmash_handler_t;
 
+static void get_module_directory_or_empty( char *buf, DWORD buf_size )
+{
+    DWORD n = GetModuleFileName( NULL, buf, buf_size );
+    if( n != 0 && n < buf_size )
+    {
+        /* Assuming the module-name (e.g."aviutl.exe") has no 0x5c. */
+        while( n != 0 && buf[n - 1] != '/' && buf[n - 1] != '\\' )
+            buf[--n] = '\0';
+        return;
+    }
+    *buf = '\0';
+}
+
 static FILE *open_settings( void )
 {
     FILE *ini = NULL;
     for( int i = 0; i < 2; i++ )
     {
         static const char *settings_path_list[2] = { "lsmash.ini", "plugins/lsmash.ini" };
-        ini = fopen( settings_path_list[i], "rb" );
+        char path[512];
+        get_module_directory_or_empty( path, sizeof(path) );
+        if( *path && strlen( path ) + strlen( settings_path_list[i] ) < sizeof(path) )
+            strcat( path, settings_path_list[i] );
+        ini = *path ? fopen( path, "rb" ) : NULL;
         if( ini )
             return ini;
     }
