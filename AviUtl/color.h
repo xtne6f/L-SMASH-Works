@@ -22,8 +22,23 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
+#ifndef _WIN32
+#ifndef UTL_PRIMITIVE_TYPE_DEFINED
+#define UTL_PRIMITIVE_TYPE_DEFINED
+typedef unsigned int DWORD;
+typedef int BOOL;
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+#endif
+
 //	YC構造体
-#ifndef PIXEL_YC
+#ifndef UTL_PIXEL_YC_DEFINED
+#define UTL_PIXEL_YC_DEFINED
 typedef	struct {
 	short	y;					//	画素(輝度    )データ (     0 ～ 4096 )
 	short	cb;					//	画素(色差(青))データ ( -2048 ～ 2048 )
@@ -33,12 +48,15 @@ typedef	struct {
 } PIXEL_YC;
 #endif
 
+#ifndef UTL_MULTI_THREAD_FUNC_DEFINED
+#define UTL_MULTI_THREAD_FUNC_DEFINED
 //	マルチスレッド関数用の定義
 typedef void (*MULTI_THREAD_FUNC)( int thread_id,int thread_num,void *param1,void *param2 );
 								//	thread_id	: スレッド番号 ( 0 ～ thread_num-1 )
 								//	thread_num	: スレッド数 ( 1 ～ )
 								//	param1		: 汎用パラメータ
 								//	param2		: 汎用パラメータ
+#endif
 
 //	色変換の処理情報構造体
 typedef struct {
@@ -68,27 +86,27 @@ typedef struct {
 
 //	色変換プラグイン構造体
 typedef struct {
-	int		flag;				//	フラグ
-	LPSTR	name;				//	プラグインの名前
-	LPSTR	information;		//	プラグインの情報
-	BOOL 	(*func_init)( void );
+	int			flag;			//	フラグ
+	const char	*name;			//	プラグインの名前
+	const char	*information;	//	プラグインの情報
+	BOOL 		(*func_init)( void );
 								//	DLL開始時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
-	BOOL 	(*func_exit)( void );
+	BOOL 		(*func_exit)( void );
 								//	DLL終了時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
-	BOOL 	(*func_pixel2yc)( COLOR_PROC_INFO *cpip );
+	BOOL 		(*func_pixel2yc)( const COLOR_PROC_INFO *cpip );
 								//	DIB形式の画像からからPIXEL_YC形式の画像に変換します (NULLなら呼ばれません)
 								//  戻り値		: TRUEなら成功
 								//				: FALSEならAviUtl側でデフォルト変換されます
-	BOOL 	(*func_yc2pixel)( COLOR_PROC_INFO *cpip );
+	BOOL 		(*func_yc2pixel)( const COLOR_PROC_INFO *cpip );
 								//	PIXEL_YC形式の画像からからDIB形式の画像に変換します (NULLなら呼ばれません)
 								//  戻り値		: TRUEなら成功
 								//				: FALSEならAviUtl側でデフォルト変換されます
-	int		reserve[16];
+	int			reserve[16];
 } COLOR_PLUGIN_TABLE;
 
+#ifndef UTL_PLUGIN_OMIT_FORWARD_DECL
 BOOL func_init( void );
 BOOL func_exit( void );
-BOOL func_pixel2yc( COLOR_PROC_INFO *cpip );
-BOOL func_yc2pixel( COLOR_PROC_INFO *cpip );
-
-
+BOOL func_pixel2yc( const COLOR_PROC_INFO *cpip );
+BOOL func_yc2pixel( const COLOR_PROC_INFO *cpip );
+#endif

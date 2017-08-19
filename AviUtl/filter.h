@@ -22,7 +22,33 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
+#ifndef _WIN32
+#ifndef UTL_PRIMITIVE_TYPE_DEFINED
+#define UTL_PRIMITIVE_TYPE_DEFINED
+typedef unsigned int DWORD;
+typedef int BOOL;
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+#endif
+
+//	エディットハンドル(void*/不完全型*)
+#ifdef UTL_UNDEF_UTL_EDIT
+#ifndef UTL_EDIT
+#define UTL_EDIT void
+#endif
+#else
+struct UTL_EDIT_TAG_;
+typedef struct UTL_EDIT_TAG_ UTL_EDIT;
+#endif
+
 //	YC構造体
+#ifndef UTL_PIXEL_YC_DEFINED
+#define UTL_PIXEL_YC_DEFINED
 typedef	struct {
 	short	y;					//	画素(輝度    )データ (     0 ～ 4096 )
 	short	cb;					//	画素(色差(青))データ ( -2048 ～ 2048 )
@@ -30,11 +56,15 @@ typedef	struct {
 								//	画素データは範囲外に出ていることがあります
 								//	また範囲内に収めなくてもかまいません
 } PIXEL_YC;
+#endif
 
 //	PIXEL構造体
+#ifndef UTL_PIXEL_DEFINED
+#define UTL_PIXEL_DEFINED
 typedef	struct {
 	unsigned char	b,g,r;		//	画素(RGB)データ (0～255)
 } PIXEL;
+#endif
 
 //	フィルタPROC用構造体
 typedef struct {
@@ -53,7 +83,7 @@ typedef struct {
 	int			audio_n;		//	オーディオサンプルの総数
 	int			audio_ch;		//	オーディオチャンネル数
 	PIXEL		*pixelp;		//	現在は使用されていません
-	void		*editp;			//	エディットハンドル
+	UTL_EDIT	*editp;			//	エディットハンドル
 	int			yc_size;		//	画像領域の画素のバイトサイズ
 	int			line_size;		//	画像領域の幅のバイトサイズ
 	int			reserve[8];		//	拡張用に予約されてます
@@ -97,63 +127,68 @@ typedef struct {
 
 //	ファイルインフォメーション構造体
 typedef struct {
-	int		flag;					//	ファイルのフラグ
-									//	FILE_INFO_FLAG_VIDEO	: 映像が存在する
-									//	FILE_INFO_FLAG_AUDIO	: 音声が存在する
-	LPSTR	name;					//	ファイル名 ( avi_file_open()ではNULLになります )
-	int		w,h;					//	元のサイズ
-	int		video_rate,video_scale;	//	フレームレート
-	int		audio_rate;				//	音声サンプリングレート
-	int		audio_ch;				//	音声チャンネル数
-	int		frame_n;				//	総フレーム数
-	DWORD	video_decode_format;	//	ビデオ展開形式
-	int		video_decode_bit;		//	ビデオ展開形式のビット数
-	int		audio_n;				//	音声の総サンプル数 ( avi_file_open()の時のみ設定されます )
-	int		reserve[4];				//	拡張用に予約されてます
+	int			flag;					//	ファイルのフラグ
+										//	FILE_INFO_FLAG_VIDEO	: 映像が存在する
+										//	FILE_INFO_FLAG_AUDIO	: 音声が存在する
+	const char	*name;					//	ファイル名 ( avi_file_open()ではNULLになります )
+	int			w,h;					//	元のサイズ
+	int			video_rate,video_scale;	//	フレームレート
+	int			audio_rate;				//	音声サンプリングレート
+	int			audio_ch;				//	音声チャンネル数
+	int			frame_n;				//	総フレーム数
+	DWORD		video_decode_format;	//	ビデオ展開形式
+	int			video_decode_bit;		//	ビデオ展開形式のビット数
+	int			audio_n;				//	音声の総サンプル数 ( avi_file_open()の時のみ設定されます )
+	int			reserve[4];				//	拡張用に予約されてます
 } FILE_INFO;
 #define FILE_INFO_FLAG_VIDEO	1
 #define FILE_INFO_FLAG_AUDIO	2
 
 //	システムインフォメーション構造体
 typedef struct {
-	int		flag;					//	システムフラグ
+	int			flag;				//	システムフラグ
 									//	SYS_INFO_FLAG_EDIT		: 編集中
 									//	SYS_INFO_FLAG_VFAPI		: VFAPI動作時
 									//	SYS_INFO_FLAG_USE_SSE	: SSE使用
 									//	SYS_INFO_FLAG_USE_SSE2	: SSE2使用
-	LPSTR	info;					//	バージョン情報
-	int		filter_n;				//	登録されてるフィルタの数
-	int		min_w,min_h;			//	編集出来る最小画像サイズ
-	int		max_w,max_h;			//	編集出来る最大画像サイズ
-	int		max_frame;				//	編集出来る最大フレーム数
-	LPSTR	edit_name;				//	編集ファイル名 (ファイル名が決まっていない時は何も入っていません)
-	LPSTR	project_name;			//	プロジェクトファイル名 (ファイル名が決まっていない時は何も入っていません)
-	LPSTR	output_name;			//	出力ファイル名 (ファイル名が決まっていない時は何も入っていません)
-	int		vram_w,vram_h;			//	編集用画像領域のサイズ
-	int		vram_yc_size;			//	編集用画像領域の画素のバイト数
-	int		vram_line_size;			//	編集用画像領域の幅のバイト数
-	HFONT	hfont;					//	フィルタ設定ウィンドウで使用しているフォントのハンドル
-	int		build;					//	ビルド番号 (新しいバージョンになるほど大きな値になります)
-	int		reserve[2];				//	拡張用に予約されてます
+	const char	*info;				//	バージョン情報
+	int			filter_n;			//	登録されてるフィルタの数
+	int			min_w,min_h;		//	編集出来る最小画像サイズ
+	int			max_w,max_h;		//	編集出来る最大画像サイズ
+	int			max_frame;			//	編集出来る最大フレーム数
+	const char	*edit_name;			//	編集ファイル名 (ファイル名が決まっていない時は何も入っていません)
+	const char	*project_name;		//	プロジェクトファイル名 (ファイル名が決まっていない時は何も入っていません)
+	const char	*output_name;		//	出力ファイル名 (ファイル名が決まっていない時は何も入っていません)
+	int			vram_w,vram_h;		//	編集用画像領域のサイズ
+	int			vram_yc_size;		//	編集用画像領域の画素のバイト数
+	int			vram_line_size;		//	編集用画像領域の幅のバイト数
+	HFONT		hfont;				//	フィルタ設定ウィンドウで使用しているフォントのハンドル
+	int			build;				//	ビルド番号 (新しいバージョンになるほど大きな値になります)
+	int			reserve[2];			//	拡張用に予約されてます
 } SYS_INFO;
 #define SYS_INFO_FLAG_EDIT		1
 #define SYS_INFO_FLAG_VFAPI		2
 #define SYS_INFO_FLAG_USE_SSE	4
 #define SYS_INFO_FLAG_USE_SSE2	8
 
+#ifndef UTL_MULTI_THREAD_FUNC_DEFINED
+#define UTL_MULTI_THREAD_FUNC_DEFINED
 //	マルチスレッド関数用の定義
 typedef void (*MULTI_THREAD_FUNC)( int thread_id,int thread_num,void *param1,void *param2 );
 								//	thread_id	: スレッド番号 ( 0 ～ thread_num-1 )
 								//	thread_num	: スレッド数 ( 1 ～ )
 								//	param1		: 汎用パラメータ
 								//	param2		: 汎用パラメータ
+#endif
 
 //	AVI入力ファイルハンドル
 typedef void*	AVI_FILE_HANDLE;
 
+struct FILTER_TAG_;
+
 //	外部関数構造体
 typedef struct {
-	void		(*get_ycp_ofs)( void *editp,int n,int ofs );
+	void		(*get_ycp_ofs)( UTL_EDIT *editp,int n,int ofs );
 								//	※出来るだけget_ycp_source_cache()の方を使用するようにしてください
 								//	指定したフレームのAVIファイル上でのオフセット分移動した
 								//	フレームの画像データのポインタを取得します
@@ -163,7 +198,7 @@ typedef struct {
 								//	ofs	 	: フレームからのオフセット
 								//  戻り値	: 画像データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
-	void		*(*get_ycp)( void *editp,int n );
+	void		*(*get_ycp)( UTL_EDIT *editp,int n );
 								//	※出来るだけget_ycp_source_cache()の方を使用するようにしてください
 								//	指定したフレームの画像データのポインタを取得します
 								//	データはフィルタ前のものです
@@ -171,64 +206,64 @@ typedef struct {
 								//	n	 	: フレーム番号
 								//  戻り値	: 画像データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
-	void		*(*get_pixelp)( void *editp,int n );
+	void		*(*get_pixelp)( UTL_EDIT *editp,int n );
 								//	指定したフレームのDIB形式(RGB24bit)の画像データのポインタを取得します
 								//	データはフィルタ前のものです
 								//	editp 	: エディットハンドル
 								//	n		: フレーム番号
 								//  戻り値	: DIB形式データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
-	int			(*get_audio)( void *editp,int n,void *buf );
+	int			(*get_audio)( UTL_EDIT *editp,int n,void *buf );
 								//	指定したフレームのオーディオデータを読み込みます
 								//	データはフィルタ前のものです
 								//	editp 	: エディットハンドル
 								//	n		: フレーム番号
 								//	buf 	: 格納するバッファ (NULLならサンプル数の取得のみ)
 								//  戻り値	: 読み込んだサンプル数
-	BOOL		(*is_editing)( void *editp );
+	BOOL		(*is_editing)( UTL_EDIT *editp );
 								//	現在編集中か調べます
 								//	editp 	: エディットハンドル
 								//  戻り値	: TRUEなら編集中
-	BOOL		(*is_saving)( void *editp );
+	BOOL		(*is_saving)( UTL_EDIT *editp );
 								//	現在保存中か調べます
 								//	editp 	: エディットハンドル
 								//  戻り値	: TRUEなら保存中
-	int			(*get_frame)( void *editp );
+	int			(*get_frame)( UTL_EDIT *editp );
 								//	現在の表示フレームを取得します
 								//	editp 	: エディットハンドル
 								//  戻り値	: 現在のフレーム番号
-	int			(*get_frame_n)( void *editp );
+	int			(*get_frame_n)( UTL_EDIT *editp );
 								//	総フレーム数を取得します
 								//	editp 	: エディットハンドル
 								//  戻り値	: 現在の総フレーム数
-	BOOL		(*get_frame_size)( void *editp,int *w,int *h );
+	BOOL		(*get_frame_size)( UTL_EDIT *editp,int *w,int *h );
 								//	フィルタ前のフレームのサイズを取得します
 								//	editp 	: エディットハンドル
 								//	w,h 	: 画像サイズの格納ポインタ
 								//  戻り値	: TRUEなら成功
-	int			(*set_frame)( void *editp,int n );
+	int			(*set_frame)( UTL_EDIT *editp,int n );
 								//	現在の表示フレームを変更します
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  戻り値	: 設定されたフレーム番号
-	int			(*set_frame_n)( void *editp,int n );
+	int			(*set_frame_n)( UTL_EDIT *editp,int n );
 								//	総フレーム数を変更します
 								//	editp 	: エディットハンドル
 								//  n		: フレーム数
 								//  戻り値	: 設定された総フレーム数
-	BOOL		(*copy_frame)( void *editp,int d,int s );
+	BOOL		(*copy_frame)( UTL_EDIT *editp,int d,int s );
 								//	フレームを他のフレームにコピーします
 								//	editp 	: エディットハンドル
 								//	d	 	: コピー先フレーム番号
 								//	s	 	: コピー元フレーム番号
 								//  戻り値	: TRUEなら成功
-	BOOL		(*copy_video)( void *editp,int d,int s );
+	BOOL		(*copy_video)( UTL_EDIT *editp,int d,int s );
 								//	フレームの映像だけを他のフレームにコピーします
 								//	editp 	: エディットハンドル
 								//	d	 	: コピー先フレーム番号
 								//	s	 	: コピー元フレーム番号
 								//  戻り値	: TRUEなら成功
-	BOOL		(*copy_audio)( void *editp,int d,int s );
+	BOOL		(*copy_audio)( UTL_EDIT *editp,int d,int s );
 								//	フレームの音声だけを他のフレームにコピーします
 								//	editp 	: エディットハンドル
 								//	d	 	: コピー先フレーム番号
@@ -240,62 +275,62 @@ typedef struct {
 								//	pixelp	: DIB形式データへのポインタ
 								//	w,h 	: 画像サイズ
 								//  戻り値	: TRUEなら成功
-	BOOL		(*paste_clip)( HWND hwnd,void *editp,int n );
+	BOOL		(*paste_clip)( HWND hwnd,UTL_EDIT *editp,int n );
 								//	クリップボードから画像を張りつけます
 								//	hwnd 	: ウィンドウハンドル
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  戻り値	: TRUEなら成功
-	BOOL		(*get_frame_status)( void *editp,int n,FRAME_STATUS *fsp );
+	BOOL		(*get_frame_status)( UTL_EDIT *editp,int n,FRAME_STATUS *fsp );
 								//	フレームのステータスを取得します
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  fps		: フレームステータスへのポインタ
 								//  戻り値	: TRUEなら成功
-	BOOL		(*set_frame_status)( void *editp,int n,FRAME_STATUS *fsp );
+	BOOL		(*set_frame_status)( UTL_EDIT *editp,int n,FRAME_STATUS *fsp );
 								//	フレームのステータスを変更します
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  fps		: フレームステータスへのポインタ
 								//  戻り値	: TRUEなら成功
-	BOOL		(*is_saveframe)( void *editp,int n );
+	BOOL		(*is_saveframe)( UTL_EDIT *editp,int n );
 								//	実際に保存されるフレームか調べます
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  戻り値	: TRUEなら保存されます
-	BOOL		(*is_keyframe)( void *editp,int n );
+	BOOL		(*is_keyframe)( UTL_EDIT *editp,int n );
 								//	キーフレームかどうか調べます
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  戻り値	: TRUEならキーフレーム
-	BOOL		(*is_recompress)( void *editp,int n );
+	BOOL		(*is_recompress)( UTL_EDIT *editp,int n );
 								//	再圧縮が必要か調べます
 								//	editp 	: エディットハンドル
 								//  n		: フレーム番号
 								//  戻り値	: TRUEなら再圧縮が必要
-	BOOL		(*filter_window_update)( void *fp );
+	BOOL		(*filter_window_update)( struct FILTER_TAG_ *fp );
 								//	設定ウィンドウのトラックバーとチェックボックスを再描画します
 								//	fp	 	: フィルタ構造体のポインタ
 								//  戻り値	: TRUEなら成功
-	BOOL		(*is_filter_window_disp)( void *fp );
+	BOOL		(*is_filter_window_disp)( struct FILTER_TAG_ *fp );
 								//	設定ウィンドウが表示されているか調べます
 								//	fp	 	: フィルタ構造体のポインタ
 								//  戻り値	: TRUEなら表示されている
-	BOOL		(*get_file_info)( void *editp,FILE_INFO *fip );
+	BOOL		(*get_file_info)( UTL_EDIT *editp,FILE_INFO *fip );
 								//	編集ファイルの情報を取得します
 								//	editp 	: エディットハンドル
 								//  fip		: ファイルインフォメーション構造体へのポインタ
 								//  戻り値	: TRUEなら成功
-	LPSTR		(*get_config_name)( void *editp,int n );
+	const char	*(*get_config_name)( UTL_EDIT *editp,int n );
 								//	現在のプロファイルの名前を取得します
 								//	editp 	: エディットハンドル
 								//  n		: プロファイル環境の番号
 								//  戻り値	: プロファイルの名前へのポインタ (NULLなら失敗)
-	BOOL		(*is_filter_active)( void *fp );
+	BOOL		(*is_filter_active)( struct FILTER_TAG_ *fp );
 								//	フィルタが有効になっているか調べます
 								//	fp	 	: フィルタ構造体のポインタ
 								//  戻り値	: TRUEならフィルタ有効
-	BOOL		(*get_pixel_filtered)( void *editp,int n,void *pixelp,int *w,int *h );
+	BOOL		(*get_pixel_filtered)( UTL_EDIT *editp,int n,void *pixelp,int *w,int *h );
 								//	指定したフレームのDIB形式(RGB24bit)の画像データを読み込みます
 								//	データはフィルタ後のものです
 								//	editp 	: エディットハンドル
@@ -303,20 +338,20 @@ typedef struct {
 								//  pixelp	: DIB形式データを格納するポインタ (NULLなら画像サイズだけを返します)
 								//	w,h		: 画像のサイズ (NULLならDIB形式データだけを返します)
 								//  戻り値	: TRUEなら成功
-	int			(*get_audio_filtered)( void *editp,int n,void *buf );
+	int			(*get_audio_filtered)( UTL_EDIT *editp,int n,void *buf );
 								//	指定したフレームのオーディオデータを読み込みます
 								//	データはフィルタ後のものです
 								//	editp* 	: エディットハンドル
 								//	n		: フレーム番号
 								//	buf 	: 格納するバッファ (NULLならサンプル数の取得のみ)
 								//  戻り値	: 読み込んだサンプル数
-	BOOL		(*get_select_frame)( void *editp,int *s,int *e );
+	BOOL		(*get_select_frame)( UTL_EDIT *editp,int *s,int *e );
 								//	選択開始終了フレームを取得します
 								//	editp 	: エディットハンドル
 								//	s		: 選択開始フレーム
 								//	e		: 選択終了フレーム
 								//  戻り値	: TRUEなら成功
-	BOOL		(*set_select_frame)( void *editp,int s,int e );
+	BOOL		(*set_select_frame)( UTL_EDIT *editp,int s,int e );
 								//	選択開始終了フレームを設定します
 								//	editp 	: エディットハンドル
 								//	s		: 選択開始フレーム
@@ -334,51 +369,51 @@ typedef struct {
 								//	ycp		: PIXEL_YC構造体へのポインタ
 								//	w		: 構造体の数
 								//  戻り値	: TRUEなら成功
-	BOOL		(*dlg_get_load_name)( LPSTR name,LPSTR filter,LPSTR def );
+	BOOL		(*dlg_get_load_name)( const char *name,const char *filter,const char *def );
 								//	ファイルダイアログを使って読み込むファイル名を取得します
 								//	name	: ファイル名を格納するポインタ
 								//	filter	: ファイルフィルタ
 								//  def		: デフォルトのファイル名
 								//  戻り値	: TRUEなら成功 FALSEならキャンセル
-	BOOL		(*dlg_get_save_name)( LPSTR name,LPSTR filter,LPSTR def );
+	BOOL		(*dlg_get_save_name)( const char *name,const char *filter,const char *def );
 								//	ファイルダイアログを使って書き込むファイル名を取得します
 								//	name	: ファイル名を格納するポインタ
 								//	filter	: ファイルフィルタ
 								//  def		: デフォルトのファイル名
 								//  戻り値	: TRUEなら成功 FALSEならキャンセル
-	int			(*ini_load_int)( void *fp,LPSTR key,int n );
+	int			(*ini_load_int)( struct FILTER_TAG_ *fp,const char *key,int n );
 								//	INIファイルから数値を読み込む
 								//	fp	 	: フィルタ構造体のポインタ
 								//	key		: アクセス用のキーの名前
 								//  n		: デフォルトの数値
 								//  戻り値	: 読み込んだ数値
-	int			(*ini_save_int)( void *fp,LPSTR key,int n );
+	int			(*ini_save_int)( struct FILTER_TAG_ *fp,const char *key,int n );
 								//	INIファイルに数値を書き込む
 								//	fp	 	: フィルタ構造体のポインタ
 								//	key		: アクセス用のキーの名前
 								//  n		: 書き込む数値
 								//  戻り値	: 書き込んだ数値
-	BOOL		(*ini_load_str)( void *fp,LPSTR key,LPSTR str,LPSTR def );
+	BOOL		(*ini_load_str)( struct FILTER_TAG_ *fp,const char *key,const char *str,const char *def );
 								//	INIファイルから文字列を読み込む
 								//	fp	 	: フィルタ構造体のポインタ
 								//	key		: アクセス用のキーの名前
 								//  str		: 文字列を読み込むバッファ
 								//  def		: デフォルトの文字列
 								//  戻り値	: TRUEなら成功
-	BOOL		(*ini_save_str)( void *fp,LPSTR key,LPSTR str );
+	BOOL		(*ini_save_str)( struct FILTER_TAG_ *fp,const char *key,const char *str );
 								//	INIファイルに文字列を書き込む
 								//	fp	 	: フィルタ構造体のポインタ
 								//	key		: アクセス用のキーの名前
 								//  n		: 書き込む文字列
 								//  戻り値	: TRUEなら成功
-	BOOL		(*get_source_file_info)( void *editp,FILE_INFO *fip,int source_file_id );
+	BOOL		(*get_source_file_info)( UTL_EDIT *editp,FILE_INFO *fip,int source_file_id );
 								//	指定したファイルIDのファイルの情報を取得します
 								//	editp 	: エディットハンドル
 								//  fip		: ファイルインフォメーション構造体へのポインタ
 								//	souce_file_id
 								//			: ファイルID
 								//  戻り値	: TRUEなら成功
-	BOOL		(*get_source_video_number)( void *editp,int n,int *source_file_id,int *source_video_number );
+	BOOL		(*get_source_video_number)( UTL_EDIT *editp,int n,int *source_file_id,int *source_video_number );
 								//	指定したフレームのソースのファイルIDとフレーム番号を取得します
 								//	editp 	: エディットハンドル
 								//	n		: フレーム番号
@@ -387,7 +422,7 @@ typedef struct {
 								//	souce_video_number
 								//			: フレーム番号を格納するポインタ
 								//  戻り値	: TRUEなら成功
-	BOOL		(*get_sys_info)( void *editp,SYS_INFO *sip );
+	BOOL		(*get_sys_info)( UTL_EDIT *editp,SYS_INFO *sip );
 								//	システムの情報を取得します
 								//	editp 	: エディットハンドル (NULLならsipの編集中のフラグとすべてのファイル名が無効になります)
 								//  sip		: システムインフォメーション構造体へのポインタ
@@ -397,7 +432,7 @@ typedef struct {
 								//	filter_id
 								//		 	: フィルタID (0～登録されてるフィルタの数-1までの値)
 								//  戻り値	: フィルタ構造体へのポインタ (NULLなら失敗)
-	void		*(*get_ycp_filtering)( void *fp,void *editp,int n,void *reserve );
+	void		*(*get_ycp_filtering)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,int n,void *reserve );
 								//	※出来るだけget_ycp_filtering_cache_ex()の方を使用するようにしてください
 								//	指定したフレームの画像データのポインタを取得します
 								//	データは自分のフィルタの直前までフィルタしたものです
@@ -407,7 +442,7 @@ typedef struct {
 								//	reserve	: NULLを指定してください
 								//  戻り値	: 画像データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
-	int			(*get_audio_filtering)( void *fp,void *editp,int n,void *buf );
+	int			(*get_audio_filtering)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,int n,void *buf );
 								//	指定したフレームのオーディオデータを読み込みます
 								//	データは自分のフィルタの直前までフィルタしたものです
 								//	fp	 	: フィルタ構造体のポインタ
@@ -415,7 +450,7 @@ typedef struct {
 								//	n		: フレーム番号
 								//	buf 	: 格納するバッファ (NULLならサンプル数の取得のみ)
 								//  戻り値	: 読み込んだサンプル数
-	BOOL		(*set_ycp_filtering_cache_size)( void *fp,int w,int h,int d,int flag );
+	BOOL		(*set_ycp_filtering_cache_size)( struct FILTER_TAG_ *fp,int w,int h,int d,int flag );
 								//	get_ycp_filtering_cache_ex()のキャッシュの設定をします
 								//	設定値が変わった時のみキャッシュ領域を再確保します
 								//	キャッシュ領域はフィルタがアクティブの時のみ確保されます
@@ -425,7 +460,7 @@ typedef struct {
 								//	d	 	: キャッシュするフレーム数
 								//	flag 	: NULLを指定してください
 								//  戻り値	: TRUEなら成功
-	void		*(*get_ycp_filtering_cache)( void *fp,void *editp,int n );
+	void		*(*get_ycp_filtering_cache)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,int n );
 								//	※出来るだけget_ycp_filtering_cache_ex()の方を使用するようにしてください
 								//	指定したフレームの画像データのキャッシュポインタを取得します
 								//	set_ycp_filtering_cache_size()の設定にしたがってキャッシュされます
@@ -435,7 +470,7 @@ typedef struct {
 								//	n	 	: フレーム番号
 								//  戻り値	: 画像データへのキャッシュポインタ (NULLなら失敗)
 								//			  画像データポインタの内容はキャッシュから破棄されるまで有効
-	void		*(*get_ycp_source_cache)( void *editp,int n,int ofs );
+	void		*(*get_ycp_source_cache)( UTL_EDIT *editp,int n,int ofs );
 								//	指定したフレームの画像データのポインタを取得します
 								//	データはフィルタ前のものです
 								//	editp 	: エディットハンドル
@@ -443,7 +478,7 @@ typedef struct {
 								//	ofs	 	: 元のAVI上でのフレームのオフセット
 								//  戻り値	: 画像データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容はキャッシュから破棄されるまで有効
-	void		*(*get_disp_pixelp)( void *editp,DWORD format );
+	void		*(*get_disp_pixelp)( UTL_EDIT *editp,DWORD format );
 								//	表示されているフレームの画像データのポインタを取得します
 								//	データはフィルタ後のものです
 								//	表示フィルタのみ使用可能です。
@@ -451,7 +486,7 @@ typedef struct {
 								//	format	: 画像フォーマット( NULL = RGB24bit / 'Y''U''Y''2' = YUY2 )
 								//  戻り値	: 画像データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
-	BOOL		(*get_pixel_source)( void *editp,int n,void *pixelp,DWORD format );
+	BOOL		(*get_pixel_source)( UTL_EDIT *editp,int n,void *pixelp,DWORD format );
 								//	指定したフレームの画像データを読み込みます
 								//	データはフィルタ前のものです
 								//	editp 	: エディットハンドル
@@ -459,7 +494,7 @@ typedef struct {
 								//  pixelp	: DIB形式データを格納するポインタ
 								//	format	: 画像フォーマット( NULL = RGB24bit / 'Y''U''Y''2' = YUY2 )
 								//  戻り値	: TRUEなら成功
-	BOOL		(*get_pixel_filtered_ex)( void *editp,int n,void *pixelp,int *w,int *h,DWORD format );
+	BOOL		(*get_pixel_filtered_ex)( UTL_EDIT *editp,int n,void *pixelp,int *w,int *h,DWORD format );
 								//	指定したフレームの画像データを読み込みます
 								//	データはフィルタ後のものです
 								//	editp 	: エディットハンドル
@@ -468,7 +503,7 @@ typedef struct {
 								//	w,h		: 画像のサイズ (NULLならDIB形式データだけを返します)
 								//	format	: 画像フォーマット( NULL = RGB24bit / 'Y''U''Y''2' = YUY2 )
 								//  戻り値	: TRUEなら成功
-	PIXEL_YC	*(*get_ycp_filtering_cache_ex)( void *fp,void *editp,int n,int *w,int *h );
+	PIXEL_YC	*(*get_ycp_filtering_cache_ex)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,int n,int *w,int *h );
 								//	指定したフレームの画像データのキャッシュポインタを取得します
 								//	set_ycp_filtering_cache_size()の設定にしたがってキャッシュされます
 								//	データは自分のフィルタの直前までフィルタしたものです
@@ -492,7 +527,7 @@ typedef struct {
 								//  戻り値	: 作成したフレーム画像データへのポインタ (NULLなら失敗)
 	void		(*delete_yc)( PIXEL_YC *ycp );
 								//	create_ycで作成した領域を削除します
-	BOOL 		(*load_image)( PIXEL_YC *ycp,LPSTR file,int *w,int *h,int flag );
+	BOOL 		(*load_image)( PIXEL_YC *ycp,const char *file,int *w,int *h,int flag );
 								//	フレーム画像データにBMPファイルから画像を読み込みます
 								//	ycp     : 画像を読み込むフレーム画像へのポインタ (NULLなら描画をせずにサイズを返します)
 								//	file	: 読み込むBMPファイル名
@@ -517,7 +552,7 @@ typedef struct {
 								//	sx,sy	: コピー元の左上の座標
 								//	sw,sh	: コピー元のサイズ
 								//	tr      : コピー元の透明度 (0～4096)
-	void 		(*draw_text)( PIXEL_YC *ycp,int x,int y,LPSTR text,int r,int g,int b,int tr,HFONT hfont,int *w,int *h );
+	void 		(*draw_text)( PIXEL_YC *ycp,int x,int y,const char *text,int r,int g,int b,int tr,HFONT hfont,int *w,int *h );
 								//	フレーム画像データにテキストを描画します
 								//	描画の際は最大画像サイズの領域に収まるようにクリッピングをします
 								//	ycp     : 描画するフレーム画像データへのポインタ (NULLなら描画をせずにサイズを返します)
@@ -527,7 +562,7 @@ typedef struct {
 								//	tr      : 透明度 (0～4096)
 								//	hfont	: 描画で使用するフォント (NULLならデフォルトのフォント)
 								//	w,h		: 描画したテキスト領域のサイズ (NULLを指定できます)
-	AVI_FILE_HANDLE (*avi_file_open)( LPSTR file,FILE_INFO *fip,int flag );
+	AVI_FILE_HANDLE (*avi_file_open)( const char *file,FILE_INFO *fip,int flag );
 								//	AVIファイルをオープンしてavi_file_read_video(),avi_file_read_audio()で
 								//	データを読み込む為のハンドルを取得します。
 								//	※編集中のファイルとフォーマット(fpsやサンプリングレート等)が異なる場合があるので注意してください。
@@ -563,7 +598,7 @@ typedef struct {
 								//	n		: フレーム番号
 								//  戻り値	: DIB形式データへのポインタ (NULLなら失敗)
 								//			  画像データポインタの内容は次に外部関数を使うかメインに処理を戻すまで有効
-	LPSTR		(*get_avi_file_filter)( int type );
+	const char	*(*get_avi_file_filter)( int type );
 								//	avi_file_open()で読み込めるファイルのファイルフィルタを取得します
 								//	type	: ファイルの種類
 								//	GET_AVI_FILE_FILTER_TYPE_VIDEO	: ビデオル
@@ -582,7 +617,7 @@ typedef struct {
 								//	audio_rate	: 音声サンプリングレート
 								//	audio_ch	: 音声チャンネル数
 								//  戻り値	: 変更したサンプリングレートでの総サンプル数
-	BYTE		*(*get_frame_status_table)( void *editp,int type );
+	BYTE		*(*get_frame_status_table)( UTL_EDIT *editp,int type );
 								//	フレームのステータスが格納されているバッファへのポインタを取得します
 								//	editp 	: エディットハンドル
 								//  type	: ステータスの種類
@@ -590,11 +625,11 @@ typedef struct {
 								//	FARME_STATUS_TYPE_INTER		: インターレース
 								//  戻り値	: バッファへのポインタ
 								//			  バッファへのポインタの内容は編集ファイルがクローズされるまで有効
-	BOOL		(*set_undo)( void *editp );
+	BOOL		(*set_undo)( UTL_EDIT *editp );
 								//	現在の編集状況をアンドゥバッファに設定します
 								//	editp 	: エディットハンドル
 								//  戻り値	: TRUEなら成功
-	BOOL		(*add_menu_item)( void *fp,LPSTR name,HWND hwnd,int id,int def_key,int flag );
+	BOOL		(*add_menu_item)( struct FILTER_TAG_ *fp,const char *name,HWND hwnd,int id,int def_key,int flag );
 								//	メインウィンドウの設定メニュー項目を追加します
 								//	メニューが選択された時にhwndで指定したウィンドウに
 								//	WM_FILTER_COMMANDのメッセージを送ります
@@ -609,7 +644,7 @@ typedef struct {
 								//	ADD_MENU_ITEM_FLAG_KEY_CTRL		: 標準のショートカットキーをCTRL+キーにする
 								//	ADD_MENU_ITEM_FLAG_KEY_ALT		: 標準のショートカットキーをALT+キーにする
 								//  戻り値	: TRUEなら成功
-	BOOL 		(*edit_open)( void *editp,LPSTR file,int flag );
+	BOOL 		(*edit_open)( UTL_EDIT *editp,const char *file,int flag );
 								//	編集ファイルを開きます
 								//	editp 	: エディットハンドル
 								//	file 	: ファイル名
@@ -619,11 +654,11 @@ typedef struct {
 								//	EDIT_OPEN_FLAG_PROJECT		: プロジェクトファイルを開きます
 								//	EDIT_OPEN_FLAG_DIALOG		: 読み込みダイアログを表示します
 								//  戻り値	: TRUEなら成功
-	BOOL 		(*edit_close)( void *editp );
+	BOOL 		(*edit_close)( UTL_EDIT *editp );
 								//	編集ファイルを閉じます
 								//	editp 	: エディットハンドル
 								//  戻り値	: TRUEなら成功
-	BOOL 		(*edit_output)( void *editp,LPSTR file,int flag,LPSTR type );
+	BOOL 		(*edit_output)( UTL_EDIT *editp,const char *file,int flag,const char *type );
 								//	編集データをAVI出力します
 								//	WAV出力やプラグイン出力も出来ます
 								//	editp 	: エディットハンドル
@@ -633,7 +668,7 @@ typedef struct {
 								//	EDIT_OUTPUT_FLAG_WAV		: WAV出力をします
 								//	type	: 出力プラグインの名前 (NULLならAVI/WAV出力)
 								//  戻り値	: TRUEなら成功
-	BOOL 		(*set_config)( void *editp,int n,LPSTR name );
+	BOOL 		(*set_config)( UTL_EDIT *editp,int n,const char *name );
 								//	プロファイルを設定します
 								//	editp 	: エディットハンドル
 								//  n		: プロファイル環境の番号
@@ -661,7 +696,7 @@ typedef struct {
 #define	EDIT_OUTPUT_FLAG_WAV				4
 
 //	フィルタ構造体
-typedef struct {
+typedef struct FILTER_TAG_ {
 	int		flag;				//	フィルタのフラグ
 								//	FILTER_FLAG_ALWAYS_ACTIVE		: フィルタを常にアクティブにします
 								//	FILTER_FLAG_CONFIG_POPUP		: 設定をポップアップメニューにします
@@ -689,27 +724,27 @@ typedef struct {
 	int		x,y;				//	設定ウインドウのサイズ (FILTER_FLAG_WINDOW_SIZEが立っている時に有効)
 								//	設定値に FILTER_WINDOW_SIZE_CLIENT をORして設定するとクライアント領域でのサイズ指定になります。
 								//	設定値に FILTER_WINDOW_SIZE_ADD をORして設定すると標準のサイズからの追加分の指定になります。
-	TCHAR	*name;				//	フィルタの名前
+	const char	*name;			//	フィルタの名前
 	int		track_n;			//	トラックバーの数
-	TCHAR	**track_name;		//	トラックバーの名前郡へのポインタ(トラックバー数が0ならNULLでよい)
+	const char	**track_name;	//	トラックバーの名前郡へのポインタ(トラックバー数が0ならNULLでよい)
 	int		*track_default;		//	トラックバーの初期値郡へのポインタ(トラックバー数が0ならNULLでよい)
 	int		*track_s,*track_e;	//	トラックバーの数値の下限上限 (NULLなら全て0～256)
 	int		check_n;			//	チェックボックスの数
-	TCHAR	**check_name;		//	チェックボックスの名前郡へのポインタ(チェックボックス数が0ならNULLでよい)
+	const char	**check_name;	//	チェックボックスの名前郡へのポインタ(チェックボックス数が0ならNULLでよい)
 	int		*check_default;		//	チェックボックスの初期値郡へのポインタ(チェックボックス数が0ならNULLでよい)
 								//	初期値がマイナス値の場合はボタンになります。ボタンを押したときにWM_COMMAND( WPARAM = MID_FILTER_BUTTON + n )のウィンドウメッセージが送られます
-	BOOL	(*func_proc)( void *fp,FILTER_PROC_INFO *fpip );
+	BOOL	(*func_proc)( struct FILTER_TAG_ *fp,FILTER_PROC_INFO *fpip );
 								//	フィルタ処理関数へのポインタ (NULLなら呼ばれません)
-	BOOL	(*func_init)( void *fp );
+	BOOL	(*func_init)( struct FILTER_TAG_ *fp );
 								//	開始時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
-	BOOL	(*func_exit)( void *fp );
+	BOOL	(*func_exit)( struct FILTER_TAG_ *fp );
 								//	終了時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
-	BOOL	(*func_update)( void *fp,int status );
+	BOOL	(*func_update)( struct FILTER_TAG_ *fp,int status );
 								//	自分の設定が変更されたときに呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	FILTER_UPDATE_STATUS_ALL		: 全項目が変更された
 								//	FILTER_UPDATE_STATUS_TRACK + n	: n番目のトラックバーが変更された
 								//	FILTER_UPDATE_STATUS_CHECK + n	: n番目のチェックボックスが変更された
-	BOOL 	(*func_WndProc)( HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp,void *fp );
+	BOOL 	(*func_WndProc)( HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,UTL_EDIT *editp,struct FILTER_TAG_ *fp );
 								//	設定ウィンドウにウィンドウメッセージが来た時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	VFAPI動作時には呼ばれません
 								//	通常のメッセージ以外に以下の拡張メッセージが送られます
@@ -743,19 +778,19 @@ typedef struct {
 	int		*check;				//	チェックボックスの設定値郡へのポインタ (AviUtl側で設定されます)
 	void	*ex_data_ptr;		//	拡張データ領域へのポインタ (FILTER_FLAG_EX_DATAが立っている時に有効)
 	int		ex_data_size;		//	拡張データサイズ (FILTER_FLAG_EX_DATAが立っている時に有効)
-	TCHAR	*information;		//	フィルタ情報へのポインタ (FILTER_FLAG_EX_INFORMATIONが立っている時に有効)
-	BOOL	(*func_save_start)( void *fp,int s,int e,void *editp );
+	const char	*information;	//	フィルタ情報へのポインタ (FILTER_FLAG_EX_INFORMATIONが立っている時に有効)
+	BOOL	(*func_save_start)( struct FILTER_TAG_ *fp,int s,int e,UTL_EDIT *editp );
 								//	セーブが開始される直前に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	s	 	: セーブする先頭フレーム
 								//	e 		: セーブする最終フレーム
 								//  戻り値	: 成功ならTRUE
-	BOOL	(*func_save_end)( void *fp,void *editp );
+	BOOL	(*func_save_end)( struct FILTER_TAG_ *fp,UTL_EDIT *editp );
 								//	セーブが終了した直前に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 	EXFUNC	*exfunc;			//	外部関数テーブルへのポインタ (AviUtl側で設定されます)
 	HWND	hwnd;				//	ウィンドウハンドル (AviUtl側で設定されます)
 	HINSTANCE	dll_hinst;		//	DLLのインスタンスハンドル (AviUtl側で設定されます)
 	void	*ex_data_def;		//	拡張データの初期値データ領域へのポインタ (NULLなら初期化されません)
-	BOOL	(*func_is_saveframe)( void *fp,void *editp,int saveno,int frame,int fps,int edit_flag,int inter );
+	BOOL	(*func_is_saveframe)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,int saveno,int frame,int fps,int edit_flag,int inter );
 								//	インターレース解除フィルタで保存するフレームを決める時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	saveno		: セーブする範囲の先頭からのフレーム番号
 								//	frame		: 編集フレーム番号
@@ -763,27 +798,27 @@ typedef struct {
 								//	edit_flag	: 編集フラグ
 								//	inter		: フレームのインターレース
 								//	戻り値		: TRUEを返すと保存フレーム、FALSEを返すと間引きフレームになります。
-	BOOL	(*func_project_load)( void *fp,void *editp,void *data,int size );
+	BOOL	(*func_project_load)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,void *data,int size );
 								//	プロジェクトファイルからデータを読み込んだ時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	プロジェクトファイルに保存したデータが無い場合は呼ばれません
 								//	data 	: プロジェクトから読み込んだデータへのポインタ
 								//	size 	: プロジェクトから読み込んだデータのバイト数
 								//  戻り値	: 成功ならTRUE
-	BOOL	(*func_project_save)( void *fp,void *editp,void *data,int *size );
+	BOOL	(*func_project_save)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,void *data,int *size );
 								//	プロジェクトファイルをセーブしている時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	プロジェクトファイルにフィルタのデータを保存します
 								//	※AviUtlからは始めに保存サイズ取得の為にdataがNULLで呼び出され、続けて実際のデータを取得する為に呼び出されます。
 								//	data 	: プロジェクトに書き込むデータを格納するバッファへのポインタ (NULLの場合はデータのバイト数のみ返す)
 								//	size 	: プロジェクトに書き込むデータのバイト数を返すポインタ
 								//  戻り値	: 保存するデータがあるならTRUE
-	BOOL	(*func_modify_title)( void *fp,void *editp,int frame,LPSTR title,int max_title );
+	BOOL	(*func_modify_title)( struct FILTER_TAG_ *fp,UTL_EDIT *editp,int frame,const char *title,int max_title );
 								//	メインウィンドウのタイトルバーを表示する時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 								//	タイトルバーの文字列を変更できます (未編集時、出力時は呼ばれません)
 								//	frame		: 編集フレーム番号
 								//	title 		: 表示するタイトルバーの文字列
 								//	max_title 	: titleのバッファサイズ
 								//  戻り値	: 成功ならTRUE
-	TCHAR	*dll_path;			//	PluginsディレクトリのサブディレクトリにDLLがある時のみ、サブディレクトリ名が入ります。
+	const char	*dll_path;		//	PluginsディレクトリのサブディレクトリにDLLがある時のみ、サブディレクトリ名が入ります。
 	int		reserve[2];			//	拡張用に予約されてます。NULLにしてください。
 
 } FILTER;
@@ -841,52 +876,24 @@ typedef struct {
 #define	FILTER_WINDOW_SIZE_ADD			0x30000000
 
 //	フィルタDLL用構造体
-typedef struct {
-	int			flag;
-	int			x,y;
-	TCHAR		*name;
-	int			track_n;
-	TCHAR		**track_name;
-	int			*track_default;
-	int			*track_s,*track_e;
-	int			check_n;
-	TCHAR		**check_name;
-	int			*check_default;
-	BOOL		(*func_proc)( FILTER *fp,FILTER_PROC_INFO *fpip );
-	BOOL		(*func_init)( FILTER *fp );
-	BOOL		(*func_exit)( FILTER *fp );
-	BOOL		(*func_update)( FILTER *fp,int status );
-	BOOL 		(*func_WndProc)( HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp,FILTER *fp );
-	int			*track,*check;
-	void		*ex_data_ptr;
-	int			ex_data_size;
-	TCHAR		*information;
-	BOOL		(*func_save_start)( FILTER *fp,int s,int e,void *editp );
-	BOOL		(*func_save_end)( FILTER *fp,void *editp );
-	EXFUNC		*exfunc;
-	HWND		hwnd;
-	HINSTANCE	dll_hinst;
-	void		*ex_data_def;
-	BOOL		(*func_is_saveframe)( FILTER *fp,void *editp,int saveno,int frame,int fps,int edit_flag,int inter );
-	BOOL		(*func_project_load)( FILTER *fp,void *editp,void *data,int size );
-	BOOL		(*func_project_save)( FILTER *fp,void *editp,void *data,int *size );
-	BOOL		(*func_modify_title)( FILTER *fp,void *editp,int frame,LPSTR title,int max_title );
-	TCHAR		*dll_path;
-	int			reserve[2];
-} FILTER_DLL;
+typedef FILTER FILTER_DLL;
 
 #define	MID_FILTER_BUTTON			12004
 
+#ifndef UTL_PLUGIN_OMIT_FORWARD_DECL
 BOOL func_proc( FILTER *fp,FILTER_PROC_INFO *fpip );
 BOOL func_init( FILTER *fp );
 BOOL func_exit( FILTER *fp );
 BOOL func_update( FILTER *fp,int status );
-BOOL func_WndProc( HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp,FILTER *fp );
-BOOL func_save_start( FILTER *fp,int s,int e,void *editp );
-BOOL func_save_end( FILTER *fp,void *editp );
-BOOL func_is_saveframe( FILTER *fp,void *editp,int saveno,int frame,int fps,int edit_flag,int inter );
-BOOL func_project_load( FILTER *fp,void *editp,void *data,int size );
-BOOL func_project_save( FILTER *fp,void *editp,void *data,int *size );
-BOOL func_modify_title( FILTER *fp,void *editp,int frame,LPSTR title,int max_title );
+BOOL func_WndProc( HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,UTL_EDIT *editp,FILTER *fp );
+BOOL func_save_start( FILTER *fp,int s,int e,UTL_EDIT *editp );
+BOOL func_save_end( FILTER *fp,UTL_EDIT *editp );
+BOOL func_is_saveframe( FILTER *fp,UTL_EDIT *editp,int saveno,int frame,int fps,int edit_flag,int inter );
+BOOL func_project_load( FILTER *fp,UTL_EDIT *editp,void *data,int size );
+BOOL func_project_save( FILTER *fp,UTL_EDIT *editp,void *data,int *size );
+BOOL func_modify_title( FILTER *fp,UTL_EDIT *editp,int frame,LPSTR title,int max_title );
+#endif
 
-
+#ifdef UTL_UNDEF_UTL_EDIT
+#undef UTL_EDIT
+#endif

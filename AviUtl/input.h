@@ -22,6 +22,20 @@
  * THE SOFTWARE.
  *******************************************************************************/
 
+#ifndef _WIN32
+#ifndef UTL_PRIMITIVE_TYPE_DEFINED
+#define UTL_PRIMITIVE_TYPE_DEFINED
+typedef unsigned int DWORD;
+typedef int BOOL;
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+#endif
+
 //	入力ファイル情報構造体
 typedef struct {
 	int					flag;				//	フラグ
@@ -54,14 +68,14 @@ typedef struct {
 	int		flag;				//	フラグ
 								//	INPUT_PLUGIN_FLAG_VIDEO	: 画像をサポートする
 								//	INPUT_PLUGIN_FLAG_AUDIO	: 音声をサポートする
-	LPSTR	name;				//	プラグインの名前
-	LPSTR	filefilter;			//	入力ファイルフィルタ
-	LPSTR	information;		//	プラグインの情報
+	const char *name;			//	プラグインの名前
+	const char *filefilter;		//	入力ファイルフィルタ
+	const char *information;	//	プラグインの情報
 	BOOL 	(*func_init)( void );
 								//	DLL開始時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
 	BOOL 	(*func_exit)( void );
 								//	DLL終了時に呼ばれる関数へのポインタ (NULLなら呼ばれません)
-	INPUT_HANDLE (*func_open)( LPSTR file );
+	INPUT_HANDLE (*func_open)( const char *file );
 								//	入力ファイルをオープンする関数へのポインタ
 								//	file	: ファイル名
 								//	戻り値	: TRUEなら入力ファイルハンドル
@@ -102,14 +116,14 @@ typedef struct {
 #define	INPUT_PLUGIN_FLAG_VIDEO		1
 #define	INPUT_PLUGIN_FLAG_AUDIO		2
 
+#ifndef UTL_PLUGIN_OMIT_FORWARD_DECL
 BOOL func_init( void );
 BOOL func_exit( void );
-INPUT_HANDLE func_open( LPSTR file );
+INPUT_HANDLE func_open( const char *file );
 BOOL func_close( INPUT_HANDLE ih );
 BOOL func_info_get( INPUT_HANDLE ih,INPUT_INFO *iip );
 int func_read_video( INPUT_HANDLE ih,int frame,void *buf );
 int func_read_audio( INPUT_HANDLE ih,int start,int length,void *buf );
 BOOL func_is_keyframe( INPUT_HANDLE ih,int frame );
 BOOL func_config( HWND hwnd,HINSTANCE dll_hinst );
-
-
+#endif
