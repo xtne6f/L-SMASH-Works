@@ -84,6 +84,11 @@ EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTableYUY2( void )
     return &filter;
 }
 
+EXTERN_C const FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTableU( void )
+{
+    return &filter;
+}
+
 static int check_extension( char *file_name, char *ext )
 {
     int ext_length = strlen( ext );
@@ -162,7 +167,7 @@ static int output_timecodes( char *file_name, lsmash_media_ts_list_t *ts_list, u
     return 0;
 }
 
-BOOL func_WndProc( HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, void *editp, FILTER *fp )
+BOOL func_WndProc( HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, UTL_EDIT *editp, FILTER *fp )
 {
     if( !fp->exfunc->is_editing( editp ) )
         return FALSE;

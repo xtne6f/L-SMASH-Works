@@ -184,7 +184,7 @@ static int prepare_audio_decoding( lsmash_handler_t *h, audio_option_t *opt )
     return 0;
 }
 
-static void *open_file( char *file_path, reader_option_t *opt )
+static void *open_file( const char *file_path, reader_option_t *opt )
 {
     libav_handler_t *hp = alloc_handler();
     if( !hp )

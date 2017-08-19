@@ -234,7 +234,7 @@ static inline void get_interlaced_info
 
 static void *open_file
 (
-    char            *file_name,
+    const char      *file_name,
     reader_option_t *opt
 )
 {

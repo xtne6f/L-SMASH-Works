@@ -108,13 +108,18 @@ EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTableYUY2( void )
     return &filter;
 }
 
+EXTERN_C const FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTableU( void )
+{
+    return &filter;
+}
+
 #define VIDEO_TRACK 0
 #define AUDIO_TRACK 1
 
 typedef struct
 {
-    void   *editp;
-    FILTER *fp;
+    UTL_EDIT *editp;
+    FILTER   *fp;
 } muxer_t;
 
 typedef struct
@@ -1484,7 +1489,7 @@ static inline void disable_chapter( HWND hwnd, option_t *opt )
 
 static BOOL CALLBACK dialog_proc( HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam )
 {
-    static void   *editp;
+    static UTL_EDIT *editp;
     static FILTER *fp;
 	switch( message )
     {
@@ -1617,7 +1622,7 @@ static BOOL CALLBACK dialog_proc( HWND hwnd, UINT message, WPARAM wparam, LPARAM
 	return FALSE;
 }
 
-BOOL func_WndProc( HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, void *editp, FILTER *fp )
+BOOL func_WndProc( HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, UTL_EDIT *editp, FILTER *fp )
 {
     if( !fp->exfunc->is_editing( editp ) )
         return FALSE;

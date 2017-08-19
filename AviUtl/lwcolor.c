@@ -77,7 +77,7 @@ BOOL func_init( void )
  * INPUT
  ****************************************************************************/
 
-BOOL func_pixel2yc( COLOR_PROC_INFO *cpip )
+BOOL func_pixel2yc( const COLOR_PROC_INFO *cpip )
 {
     if( cpip->format != OUTPUT_TAG_LW48 )
         return FALSE;
@@ -157,7 +157,7 @@ static void convert_lw48_to_rgb24( int thread_id, int thread_num, void *param1, 
     }
 }
 
-BOOL func_yc2pixel( COLOR_PROC_INFO *cpip )
+BOOL func_yc2pixel( const COLOR_PROC_INFO *cpip )
 {
     switch( cpip->format )
     {

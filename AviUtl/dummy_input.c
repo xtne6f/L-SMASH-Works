@@ -30,7 +30,7 @@ typedef struct
     int      dummy_size;
 } dummy_handler_t;
 
-static void *open_file( char *file_name, reader_option_t *opt )
+static void *open_file( const char *file_name, reader_option_t *opt )
 {
     return lw_malloc_zero( sizeof(dummy_handler_t) );
 }

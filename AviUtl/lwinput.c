@@ -91,6 +91,11 @@ EXTERN_C INPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetInputPluginTabl
     return &input_plugin_table;
 }
 
+EXTERN_C const INPUT_PLUGIN_TABLE __declspec(dllexport) * __stdcall GetInputPluginTableU( void )
+{
+    return &input_plugin_table;
+}
+
 static reader_option_t reader_opt = { 0 };
 static video_option_t *video_opt = &reader_opt.video_opt;
 static audio_option_t *audio_opt = &reader_opt.audio_opt;
@@ -350,7 +355,7 @@ static void get_settings( void )
     }
 }
 
-INPUT_HANDLE func_open( LPSTR file )
+INPUT_HANDLE func_open( const char *file )
 {
     lsmash_handler_t *hp = (lsmash_handler_t *)lw_malloc_zero( sizeof(lsmash_handler_t) );
     if( !hp )

@@ -138,7 +138,7 @@ typedef struct lsmash_handler_tag lsmash_handler_t;
 typedef struct
 {
     reader_type type;
-    void *(*open_file)             ( char *file_name, reader_option_t *opt );
+    void *(*open_file)             ( const char *file_name, reader_option_t *opt );
     int   (*get_video_track)       ( lsmash_handler_t *h, video_option_t *opt );
     int   (*get_audio_track)       ( lsmash_handler_t *h, audio_option_t *opt );
     void  (*destroy_disposable)    ( void *private_stuff );

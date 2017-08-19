@@ -111,7 +111,7 @@ static AVS_Value invoke_filter( avs_handler_t *hp, AVS_Value before, const char 
     return after;
 }
 
-static AVS_Value initialize_avisynth( avs_handler_t *hp, char *input )
+static AVS_Value initialize_avisynth( avs_handler_t *hp, const char *input )
 {
     if( load_avisynth_dll( hp ) )
         return avs_void;
@@ -236,7 +236,7 @@ static int prepare_audio_decoding( lsmash_handler_t *h, audio_option_t *opt )
     return 0;
 }
 
-static void *open_file( char *file_name, reader_option_t *opt )
+static void *open_file( const char *file_name, reader_option_t *opt )
 {
     /* Check file extension. */
     if( lw_check_file_extension( file_name, "avs" ) < 0 )
